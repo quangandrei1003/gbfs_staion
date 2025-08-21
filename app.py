@@ -3,14 +3,14 @@ import pydeck as pdk
 import pandas as pd
 import json
 
-st.title("Paris Bike Share Stations Dashboard")
+st.title("Paris Bike Share Stations 📊")
 st.markdown(
-    "<p style='font-size:32px; color:gray; font-weight:bold;'>Bike Station Utilization Map: Availability and Usage 🚲🕹️</p>",
+    "<p style='font-size:32px; color:gray; font-weight:bold;'>Bike Stations Map: Availability and Usage 🚲🕹️</p>",
     unsafe_allow_html=True,
 )
 
 
-file_path = "data/gbfs_station_paris.json"
+file_path = "data/gbfs_station_paris_18h.json"
 
 
 @st.cache_data
