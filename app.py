@@ -1,3 +1,4 @@
+import math
 import streamlit as st
 import pydeck as pdk
 import pandas as pd
@@ -42,6 +43,33 @@ def ratio_to_color(ratio):
     return [r, g, b]
 
 
+def add_offset_to_duplicates(
+    df, lat_col="latitude", lon_col="longitude", offset=0.0001
+):
+    """Add small offset to overlapping points so they're both visible"""
+    df_copy = df.copy()
+
+    # Round coordinates to find near-duplicates (stations at same location)
+    precision = 6  # Adjust this to control what's considered "same location"
+    df_copy["lat_rounded"] = df_copy[lat_col].round(precision)
+    df_copy["lon_rounded"] = df_copy[lon_col].round(precision)
+
+    # Group by rounded coordinates to find duplicates
+    grouped = df_copy.groupby(["lat_rounded", "lon_rounded"])
+
+    for (lat_rounded, lon_rounded), group in grouped:
+        if len(group) > 1:
+            # Add circular offset pattern for overlapping points
+            for i, idx in enumerate(group.index):
+                angle = (2 * math.pi * i) / len(group)
+                df_copy.loc[idx, lat_col] += offset * math.cos(angle)
+                df_copy.loc[idx, lon_col] += offset * math.sin(angle)
+
+    # Remove temporary columns
+    df_copy = df_copy.drop(["lat_rounded", "lon_rounded"], axis=1)
+    return df_copy
+
+
 def create_map_layers(df):
     """Create map layers for docked and dockless stations."""
     layers = []
@@ -64,6 +92,9 @@ def create_map_layers(df):
         df_docked["info_line"] = df_docked["availability_display"].apply(
             lambda x: f"Available Ratio: {x}"
         )
+
+        df_docked = add_offset_to_duplicates(df_docked, offset=0.0001)
+
         colors = [
             ratio_to_color(ratio)
             for ratio in df_docked["availability_ratio_normalized"]
@@ -185,6 +216,7 @@ try:
                 tooltip = {
                     "html": "<b>{name}</b><br/>"
                     "Type: {station_type} Station <br/>"
+                    "Vehicle Type: {vehicle_type} <br />"
                     "{info_line}<br />",
                     "style": {"backgroundColor": "rgba(0,0,0,0.8)", "color": "white"},
                 }
