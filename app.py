@@ -10,7 +10,7 @@ st.markdown(
 )
 
 
-file_path = "data/gbfs_bike_station_paris_18h.json"
+file_path = "data/gbfs_all_station_paris_18h.json"
 
 
 @st.cache_data
@@ -56,11 +56,7 @@ def create_map_layers(df):
         df_docked["availability_ratio_normalized"] = df_docked[
             "availability_ratio"
         ].apply(
-            lambda x: (
-                x / 100.0
-                if not pd.isna(x) and x > 1
-                else (x if not pd.isna(x) else 0.5)
-            )
+            lambda x: (x / 100.0 if not pd.isna(x) else (x if not pd.isna(x) else 0.5))
         )
         df_docked["availability_display"] = df_docked["availability_ratio"].apply(
             lambda x: f"{int(x)}%" if not pd.isna(x) else "N/A"
