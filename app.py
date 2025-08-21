@@ -10,7 +10,7 @@ st.markdown(
 )
 
 
-file_path = "data/gbfs_station_paris_18h.json"
+file_path = "data/gbfs_bike_station_paris_18h.json"
 
 
 @st.cache_data
